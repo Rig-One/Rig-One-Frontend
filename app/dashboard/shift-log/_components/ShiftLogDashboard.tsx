@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import ActiveWorkersTable from "./ActiveWorkersTable";
+import EndShiftModal from "./EndShiftModal";
 import ShiftLogExportModal from "./ShiftLogExportModal";
 import ShiftLogsTable from "./ShiftLogsTable";
 import StartShiftModal from "./StartShiftModal";
@@ -135,7 +136,12 @@ export default function ShiftLogDashboard() {
   const [activeTab, setActiveTab] = useState<ShiftLogTab>("Active Workers");
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isStartShiftOpen, setIsStartShiftOpen] = useState(false);
+  const [isEndShiftOpen, setIsEndShiftOpen] = useState(false);
   const [startShiftToast, setStartShiftToast] = useState<{
+    workerName: string;
+    location: string;
+  } | null>(null);
+  const [endShiftToast, setEndShiftToast] = useState<{
     workerName: string;
     location: string;
   } | null>(null);
@@ -145,6 +151,12 @@ export default function ShiftLogDashboard() {
     const timeout = window.setTimeout(() => setStartShiftToast(null), 3500);
     return () => window.clearTimeout(timeout);
   }, [startShiftToast]);
+
+  useEffect(() => {
+    if (!endShiftToast) return;
+    const timeout = window.setTimeout(() => setEndShiftToast(null), 3500);
+    return () => window.clearTimeout(timeout);
+  }, [endShiftToast]);
 
   return (
     <section>
@@ -162,6 +174,26 @@ export default function ShiftLogDashboard() {
               onClick={() => setStartShiftToast(null)}
               className="text-[#98A2B3]"
               aria-label="Close shift started toast"
+            >
+              <ToastCloseIcon />
+            </button>
+          </div>
+        </div>
+      ) : null}
+      {endShiftToast ? (
+        <div className="fixed right-6 top-6 z-[60] w-[320px] overflow-hidden rounded-lg bg-white shadow-[0_18px_55px_rgba(0,0,0,0.22)]">
+          <div className="flex items-start gap-3 border-l-4 border-[#F04438] px-4 py-3">
+            <div className="flex-1">
+              <p className="text-[12px] font-semibold text-[#101828]">Shift Ended</p>
+              <p className="mt-1 text-[12px] text-[#667085]">
+                {endShiftToast.workerName} • {endShiftToast.location}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setEndShiftToast(null)}
+              className="text-[#98A2B3]"
+              aria-label="Close shift ended toast"
             >
               <ToastCloseIcon />
             </button>
@@ -189,6 +221,7 @@ export default function ShiftLogDashboard() {
           </button>
           <button
             type="button"
+            onClick={() => setIsEndShiftOpen(true)}
             className="inline-flex h-12 items-center gap-2 rounded-lg bg-[#F04438] px-5 text-[14px] font-semibold text-white"
           >
             <StopIcon />
@@ -276,6 +309,13 @@ export default function ShiftLogDashboard() {
         onClose={() => setIsStartShiftOpen(false)}
         onSubmit={(values) => {
           setStartShiftToast(values);
+        }}
+      />
+      <EndShiftModal
+        open={isEndShiftOpen}
+        onClose={() => setIsEndShiftOpen(false)}
+        onSubmit={(values) => {
+          setEndShiftToast(values);
         }}
       />
     </section>
