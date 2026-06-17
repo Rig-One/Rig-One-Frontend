@@ -15,6 +15,30 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "RigOne",
   description: "RigOne - A platform for managing operations in a rig environment",
+
+  openGraph: {
+    title: "RigOne",
+    description:
+      "RigOne - A platform for managing operations in a rig environment",
+    url: "https://rig-one-frontend.vercel.app",
+    siteName: "RigOne",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+      },
+    ],
+    type: "website",
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "RigOne",
+    description:
+      "RigOne - A platform for managing operations in a rig environment",
+    images: ["/og-image.png"],
+  },
 };
 
 export default function RootLayout({
