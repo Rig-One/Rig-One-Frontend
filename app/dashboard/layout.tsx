@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 
-import DashboardShell from "./_components/DashboardShell";
+import OperationsLayout from "./_components/OperationsLayout";
 
 type DashboardLayoutProps = {
   children: ReactNode;
 };
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  return <DashboardShell>{children}</DashboardShell>;
+  return <OperationsLayout>{children}</OperationsLayout>;
 }
