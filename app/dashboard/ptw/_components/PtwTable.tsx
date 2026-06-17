@@ -5,16 +5,24 @@ export type PtwStatus = "Approved" | "Pending" | "Closed";
 export type PtwRow = {
   id: string;
   jobType: string;
+  description: string;
   location: string;
+  department: string;
   routedTo: string[];
   aiRisk: "High" | "Medium" | "Low";
   requestedBy: string;
   dateCreated: string;
+  validity: string;
+  controlMeasures: string[];
+  reviewNote: string;
+  reviewedBy?: string;
+  reviewedAt?: string;
   status: PtwStatus;
 };
 
 type PtwTableProps = {
   rows: PtwRow[];
+  onViewDetails: (id: string) => void;
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
 };
@@ -31,7 +39,7 @@ function riskClasses(risk: PtwRow["aiRisk"]) {
   return "bg-[#EAF7EC] text-[#4E9765]";
 }
 
-export default function PtwTable({ rows, onApprove, onReject }: PtwTableProps) {
+export default function PtwTable({ rows, onViewDetails, onApprove, onReject }: PtwTableProps) {
   return (
     <div className="overflow-visible rounded-lg border border-[#EAECF0]">
       <table className="w-full text-left">
@@ -87,6 +95,7 @@ export default function PtwTable({ rows, onApprove, onReject }: PtwTableProps) {
                   <PtwActionMenu
                     status={row.status}
                     direction={index >= rows.length - 2 ? "up" : "down"}
+                    onViewDetails={() => onViewDetails(row.id)}
                     onApprove={() => onApprove(row.id)}
                     onReject={() => onReject(row.id)}
                   />

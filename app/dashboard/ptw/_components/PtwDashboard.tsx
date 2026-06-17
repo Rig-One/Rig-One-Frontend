@@ -3,37 +3,74 @@
 import { useState } from "react";
 
 import CreatePtwModal from "./CreatePtwModal";
+import PtwDetailsModal from "./PtwDetailsModal";
 import PtwTable, { type PtwRow } from "./PtwTable";
+
+type ApprovalAction = "approve" | "reject";
 
 const initialRows: PtwRow[] = [
   {
     id: "PTW-001",
     jobType: "Hot Work",
+    description: "Hot work permit for drill floor maintenance.",
     location: "Drill Floor",
-    routedTo: ["HSE Officer", "Shift Supervisor"],
-    aiRisk: "High",
+    department: "Maintenance",
+    routedTo: ["Shift Supervisor"],
+    aiRisk: "Medium",
     requestedBy: "John Smith",
     dateCreated: "2025-01-10",
+    validity: "10 Jan 2025, 08:00 - 10 Jan 2025, 16:00",
+    controlMeasures: [
+      "Ensure all personnel are equipped with flame-resistant clothing",
+      "Verify fire extinguishers are within 10 meters of work area",
+      "Conduct atmospheric testing every 30 minutes",
+      "Maintain continuous fire watch during and after work",
+    ],
+    reviewNote: "",
+    reviewedBy: "Operations Manager",
+    reviewedAt: "10 Jan 2025, 07:45",
     status: "Approved",
   },
   {
     id: "PTW-002",
-    jobType: "Confined Space Entry",
-    location: "Storage Tank A",
-    routedTo: ["Shift Supervisor"],
-    aiRisk: "Medium",
+    jobType: "Hot Work",
+    description: "Hot work permit pending approval.",
+    location: "Drill Floor",
+    department: "Operations",
+    routedTo: ["HSE Officer(You)", "Shift Supervisor"],
+    aiRisk: "High",
     requestedBy: "Sarah Johnson",
     dateCreated: "2025-01-10",
+    validity: "10 Jan 2025, 09:00 - 10 Jan 2025, 14:00",
+    controlMeasures: [
+      "Ensure all personnel are equipped with flame-resistant clothing",
+      "Verify fire extinguishers are within 10 meters of work area",
+      "Conduct atmospheric testing every 30 minutes",
+      "Maintain continuous fire watch during and after work",
+    ],
+    reviewNote: "",
     status: "Pending",
   },
   {
     id: "PTW-003",
     jobType: "Working at Height",
+    description:
+      "Inspection of derrick sheaves and replacement of the damaged upper handrail assembly.",
     location: "Derrick",
+    department: "Inspection",
     routedTo: ["OPM/Toolpusher"],
     aiRisk: "Low",
     requestedBy: "Tom Brown",
     dateCreated: "2025-01-10",
+    validity: "10 Jan 2025, 06:30 - 10 Jan 2025, 11:30",
+    controlMeasures: [
+      "Full body harness and dual lanyard checked before climbing.",
+      "Exclusion zone marked below the work area.",
+      "Tool lanyards attached for all overhead equipment.",
+    ],
+    reviewNote: "Rejected because the rescue standby arrangement was not confirmed in the submission.",
+    reviewedBy: "HSE Officer",
+    reviewedAt: "10 Jan 2025, 06:10",
     status: "Closed",
   },
 ];
@@ -72,11 +109,53 @@ function InfoIcon() {
 export default function PtwDashboard() {
   const [rows, setRows] = useState(initialRows);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [activePermitId, setActivePermitId] = useState<string | null>(null);
+  const [confirmAction, setConfirmAction] = useState<ApprovalAction | null>(null);
+  const [successAction, setSuccessAction] = useState<ApprovalAction | null>(null);
 
   const totalPtw = rows.length;
   const pendingApproval = rows.filter((row) => row.status === "Pending").length;
   const active = rows.filter((row) => row.status === "Approved").length;
   const closed = rows.filter((row) => row.status === "Closed").length;
+  const activePermit = rows.find((row) => row.id === activePermitId) ?? null;
+
+  function closeDetailsFlow() {
+    setActivePermitId(null);
+    setConfirmAction(null);
+    setSuccessAction(null);
+  }
+
+  function openDetails(id: string, action?: ApprovalAction) {
+    setActivePermitId(id);
+    setConfirmAction(action ?? null);
+    setSuccessAction(null);
+  }
+
+  function handleConfirmAction() {
+    if (!activePermitId || !confirmAction) return;
+
+    const nextStatus = confirmAction === "approve" ? "Approved" : "Closed";
+    const nextNote =
+      confirmAction === "approve"
+        ? "Approved after reviewing the permit details, routed reviewers, and listed controls."
+        : "Rejected during review because the permit needs correction before work can continue.";
+
+    setRows((current) =>
+      current.map((row) =>
+        row.id === activePermitId
+          ? {
+              ...row,
+              status: nextStatus,
+              reviewedBy: "Operations Manager",
+              reviewedAt: "10 Jan 2025, 08:15",
+              reviewNote: nextNote,
+            }
+          : row,
+      ),
+    );
+    setSuccessAction(confirmAction);
+    setConfirmAction(null);
+  }
 
   return (
     <section>
@@ -128,24 +207,24 @@ export default function PtwDashboard() {
       <div className="mt-4">
         <PtwTable
           rows={rows}
-          onApprove={(id) => {
-            setRows((current) =>
-              current.map((row) =>
-                row.id === id ? { ...row, status: "Approved" } : row,
-              ),
-            );
-          }}
-          onReject={(id) => {
-            setRows((current) =>
-              current.map((row) =>
-                row.id === id ? { ...row, status: "Closed" } : row,
-              ),
-            );
-          }}
+          onViewDetails={(id) => openDetails(id)}
+          onApprove={(id) => openDetails(id, "approve")}
+          onReject={(id) => openDetails(id, "reject")}
         />
       </div>
 
       <CreatePtwModal open={isCreateOpen} onClose={() => setIsCreateOpen(false)} />
+      <PtwDetailsModal
+        open={activePermit !== null}
+        permit={activePermit}
+        confirmAction={confirmAction}
+        successAction={successAction}
+        onClose={closeDetailsFlow}
+        onRequestAction={setConfirmAction}
+        onConfirmAction={handleConfirmAction}
+        onCloseConfirm={() => setConfirmAction(null)}
+        onCloseSuccess={closeDetailsFlow}
+      />
     </section>
   );
 }
