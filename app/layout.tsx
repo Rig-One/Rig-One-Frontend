@@ -34,7 +34,7 @@ export const metadata: Metadata = {
 
   twitter: {
     card: "summary_large_image",
-    title: "RigOne",
+    title: "RigOne", 
     description:
       "RigOne - A platform for managing operations in a rig environment",
     images: ["/og-image.png"],
