@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { BellIcon, ChevronIcon } from "./DashboardIcons";
@@ -39,7 +40,10 @@ export default function OperationsLayout({ children }: OperationsLayoutProps) {
 
                 <div className="h-8 w-px bg-[#EAECF0]" />
 
-                <div className="flex items-center gap-3">
+                <Link
+                  href="/dashboard/settings"
+                  className="flex items-center gap-3 rounded-lg px-2 py-1 transition hover:bg-[#F9FAFB]"
+                >
                   <div className="text-right">
                     <p className="text-[13px] font-semibold text-[#344054]">
                       Chinedu Eze
@@ -66,7 +70,7 @@ export default function OperationsLayout({ children }: OperationsLayoutProps) {
                   <span className="text-[#F97316]">
                     <ChevronIcon />
                   </span>
-                </div>
+                </Link>
               </div>
             </div>
           </header>

@@ -22,6 +22,12 @@ export default function LoginPage() {
     return Object.values(formValues).every((value) => value.trim().length > 0);
   }, [formValues]);
 
+  const submitButtonClassName = `mt-2 h-11 w-full max-w-[510px] rounded-lg text-[14px] font-semibold leading-5 text-white transition ${
+    isFormValid
+      ? "bg-[#053361] hover:bg-[#04294E]"
+      : "bg-[#D0D5DD] text-[#98A2B3] disabled:cursor-not-allowed"
+  }`;
+
   function updateField(name: keyof typeof formValues, value: string) {
     setFormValues((current) => ({
       ...current,
@@ -118,7 +124,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={!isFormValid}
-          className="mt-2 h-11 w-full max-w-[510px] rounded-lg bg-[#8FA3B5] text-[14px] font-semibold leading-5 text-white transition disabled:cursor-not-allowed disabled:bg-[#D0D5DD] disabled:text-[#98A2B3]"
+          className={submitButtonClassName}
         >
           Login
         </button>
