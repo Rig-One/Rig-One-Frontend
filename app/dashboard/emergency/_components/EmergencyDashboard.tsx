@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 
+import ActivateEmergencyModal from "./ActivateEmergencyModal";
 import EmergencyMusterTable, { type MusterRow } from "./EmergencyMusterTable";
 import PlanDrillModal from "./PlanDrillModal";
 import UnmusteredDetailsModal from "./UnmusteredDetailsModal";
@@ -298,6 +299,7 @@ export default function EmergencyDashboard() {
   const [query, setQuery] = useState("");
   const [selectedRow, setSelectedRow] = useState<MusterRow | null>(null);
   const [isPlanDrillOpen, setIsPlanDrillOpen] = useState(false);
+  const [isActivateEmergencyOpen, setIsActivateEmergencyOpen] = useState(false);
 
   const sourceRows =
     activeTab === "Mustered"
@@ -366,6 +368,7 @@ export default function EmergencyDashboard() {
           </div>
           <button
             type="button"
+            onClick={() => setIsActivateEmergencyOpen(true)}
             className="mt-4 inline-flex h-10 items-center justify-center rounded-lg bg-[#D92D20] px-5 text-[13px] font-semibold text-white"
           >
             Activate Emergency
@@ -467,6 +470,10 @@ export default function EmergencyDashboard() {
       <PlanDrillModal
         open={isPlanDrillOpen}
         onClose={() => setIsPlanDrillOpen(false)}
+      />
+      <ActivateEmergencyModal
+        open={isActivateEmergencyOpen}
+        onClose={() => setIsActivateEmergencyOpen(false)}
       />
     </section>
   );
