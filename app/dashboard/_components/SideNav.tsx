@@ -38,7 +38,7 @@ const fieldSections: FieldSection[] = [
       { label: "Dashboard", href: "/dashboard" },
       { label: "Personnel", href: "/dashboard/personnel" },
       { label: "Feeding", href: "#", locked: true },
-      { label: "Emergency", href: "#" },
+      { label: "Emergency", href: "/dashboard/emergency" },
       { label: "Shift Log", href: "#" },
       { label: "PTW", href: "#" },
       { label: "Incident Report", href: "#" },
@@ -73,6 +73,7 @@ export default function SideNav() {
   const pathname = usePathname();
 
   const isPersonnelRoute = pathname.startsWith("/dashboard/personnel");
+  const isEmergencyRoute = pathname.startsWith("/dashboard/emergency");
 
   return (
     <aside className="w-full bg-[#031A31] px-5 py-6 text-white lg:fixed lg:inset-y-[3px] lg:left-0 lg:z-30 lg:h-[calc(100vh-3px)] lg:w-[260px] lg:overflow-y-auto">
@@ -133,6 +134,8 @@ export default function SideNav() {
                         ? pathname === "/dashboard"
                         : item.href === "/dashboard/personnel"
                           ? isPersonnelRoute
+                          : item.href === "/dashboard/emergency"
+                            ? isEmergencyRoute
                           : false;
 
                     return (
