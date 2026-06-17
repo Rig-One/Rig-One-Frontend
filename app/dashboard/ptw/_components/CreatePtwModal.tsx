@@ -71,6 +71,26 @@ const hazardOptions = [
   "Pressure Release",
 ];
 
+const safetyControlOptions = [
+  "Lockout/Tagout (LOTO) confirmed",
+  "Electrical Isolation Completed",
+  "Mechanical Isolation Completed",
+  "Process Isolation Completed",
+  "Gas Testing Required",
+  "Toolbox Talk Conducted",
+];
+
+const ppeOptions = [
+  "Hard Hat",
+  "Steel-toe Boots",
+  "Gloves",
+  "Respiratory Protection",
+  "Safety Glasses",
+  "Fire-resistant Clothing",
+  "Hearing Protection",
+  "Fall Protection Harness",
+];
+
 function CloseIcon() {
   return (
     <svg
@@ -177,10 +197,12 @@ function ProgressSteps({ currentStep }: { currentStep: StepKey }) {
               ) : null}
 
               <span
-                className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 bg-white text-[12px] font-semibold ${
-                  isComplete || isCurrent
-                    ? "border-[#F97316] text-[#F97316]"
-                    : "border-[#D0D5DD] text-[#98A2B3]"
+                className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 text-[12px] font-semibold ${
+                  isComplete
+                    ? "border-[#F97316] bg-[#F97316] text-white"
+                    : isCurrent
+                      ? "border-[#F97316] bg-white text-[#F97316]"
+                      : "border-[#D0D5DD] bg-white text-[#98A2B3]"
                 }`}
               >
                 {isComplete ? "✓" : ""}
@@ -267,7 +289,7 @@ function SearchableSelect({
             </div>
           </div>
 
-          <div className="max-h-[248px] overflow-y-auto py-2">
+          <div className="max-h-[180px] overflow-y-auto py-2">
             {filtered.map((option) => (
               <button
                 key={option.id}
@@ -298,6 +320,8 @@ export default function CreatePtwModal({ open, onClose }: CreatePtwModalProps) {
   const [category, setCategory] = useState("");
   const [controlMeasures, setControlMeasures] = useState("");
   const [selectedHazards, setSelectedHazards] = useState<string[]>([]);
+  const [selectedSafetyControls, setSelectedSafetyControls] = useState<string[]>([]);
+  const [selectedPpe, setSelectedPpe] = useState<string[]>([]);
   const [riskLevel, setRiskLevel] = useState<"Low" | "Medium" | "High" | "">("");
   const [openSelect, setOpenSelect] = useState<"location" | "department" | "category" | null>(
     null,
@@ -306,6 +330,9 @@ export default function CreatePtwModal({ open, onClose }: CreatePtwModalProps) {
   const workIdValid = Boolean(workDescription && location && department && category);
   const riskAssessmentValid = Boolean(
     selectedHazards.length > 0 && riskLevel && controlMeasures.trim(),
+  );
+  const safetyControlsValid = Boolean(
+    selectedSafetyControls.length > 0 || selectedPpe.length > 0,
   );
 
   const handleClose = useCallback(() => {
@@ -316,6 +343,8 @@ export default function CreatePtwModal({ open, onClose }: CreatePtwModalProps) {
     setCategory("");
     setControlMeasures("");
     setSelectedHazards([]);
+    setSelectedSafetyControls([]);
+    setSelectedPpe([]);
     setRiskLevel("");
     setOpenSelect(null);
     onClose();
@@ -456,7 +485,7 @@ export default function CreatePtwModal({ open, onClose }: CreatePtwModalProps) {
                 </button>
               </div>
             </div>
-          ) : (
+          ) : currentStep === "risk-assessment" ? (
             <div className="mt-8">
               <h3 className="text-[14px] font-semibold text-[#344054]">Hazard Checklist</h3>
               <div className="mt-4 grid gap-3 md:grid-cols-2">
@@ -494,7 +523,11 @@ export default function CreatePtwModal({ open, onClose }: CreatePtwModalProps) {
                       onClick={() => setRiskLevel(option)}
                       className={`min-w-[96px] rounded-lg border px-5 py-3 text-[14px] font-semibold ${
                         riskLevel === option
-                          ? "border-[#053361] bg-[#EEF4FF] text-[#053361]"
+                          ? option === "Low"
+                            ? "border-[#16B364] bg-[#16B364] text-white"
+                            : option === "Medium"
+                              ? "border-[#F5B726] bg-[#F5B726] text-white"
+                              : "border-[#F04438] bg-[#F04438] text-white"
                           : "border-[#D0D5DD] bg-white text-[#475467]"
                       }`}
                     >
@@ -502,6 +535,20 @@ export default function CreatePtwModal({ open, onClose }: CreatePtwModalProps) {
                     </button>
                   ))}
                 </div>
+                {riskLevel === "High" ? (
+                  <div className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[#FEF3F2] px-4 py-3 text-[14px] font-medium text-[#F97316]">
+                    <svg
+                      viewBox="0 0 24 24"
+                      className="h-4 w-4"
+                      fill="currentColor"
+                      xmlns="http://www.w3.org/2000/svg"
+                      aria-hidden="true"
+                    >
+                      <path d="M12 3L22 21H2L12 3Z" />
+                    </svg>
+                    High-risk permits require HSE Manager approval
+                  </div>
+                ) : null}
               </div>
 
               <div className="mt-6">
@@ -523,11 +570,12 @@ export default function CreatePtwModal({ open, onClose }: CreatePtwModalProps) {
                   onClick={() => setCurrentStep("work-id")}
                   className="h-11 rounded-lg border border-[#D0D5DD] bg-white text-[14px] font-semibold text-[#344054]"
                 >
-                  Cancel
+                  Back
                 </button>
                 <button
                   type="button"
                   disabled={!riskAssessmentValid}
+                  onClick={() => setCurrentStep("safety-controls")}
                   className={`h-11 rounded-lg text-[14px] font-semibold text-white ${
                     riskAssessmentValid ? "bg-[#053361]" : "bg-[#8FA3B5]"
                   } disabled:cursor-not-allowed`}
@@ -536,7 +584,78 @@ export default function CreatePtwModal({ open, onClose }: CreatePtwModalProps) {
                 </button>
               </div>
             </div>
-          )}
+          ) : currentStep === "safety-controls" ? (
+            <div className="mt-8">
+              <h3 className="text-[14px] font-semibold text-[#344054]">Isolation & Lockout</h3>
+              <div className="mt-4 grid gap-x-12 gap-y-4 md:grid-cols-2">
+                {safetyControlOptions.map((item) => {
+                  const checked = selectedSafetyControls.includes(item);
+                  return (
+                    <label key={item} className="flex items-center gap-3 text-[14px] text-[#344054]">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={(event) => {
+                          setSelectedSafetyControls((current) =>
+                            event.target.checked
+                              ? [...current, item]
+                              : current.filter((value) => value !== item),
+                          );
+                        }}
+                        className="h-5 w-5 rounded border border-[#D0D5DD]"
+                      />
+                      {item}
+                    </label>
+                  );
+                })}
+              </div>
+
+              <div className="mt-10">
+                <h3 className="text-[14px] font-semibold text-[#344054]">PPE Requirements</h3>
+                <div className="mt-4 grid gap-x-12 gap-y-4 md:grid-cols-2">
+                  {ppeOptions.map((item) => {
+                    const checked = selectedPpe.includes(item);
+                    return (
+                      <label key={item} className="flex items-center gap-3 text-[14px] text-[#344054]">
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={(event) => {
+                            setSelectedPpe((current) =>
+                              event.target.checked
+                                ? [...current, item]
+                                : current.filter((value) => value !== item),
+                            );
+                          }}
+                          className="h-5 w-5 rounded border border-[#D0D5DD]"
+                        />
+                        {item}
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="mt-8 grid grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep("risk-assessment")}
+                  className="h-11 rounded-lg border border-[#D0D5DD] bg-white text-[14px] font-semibold text-[#344054]"
+                >
+                  Back
+                </button>
+                <button
+                  type="button"
+                  disabled={!safetyControlsValid}
+                  className={`h-11 rounded-lg text-[14px] font-semibold text-white ${
+                    safetyControlsValid ? "bg-[#053361]" : "bg-[#8FA3B5]"
+                  } disabled:cursor-not-allowed`}
+                >
+                  Continue
+                </button>
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

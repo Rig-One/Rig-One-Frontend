@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 type PtwActionMenuProps = {
   status: "Approved" | "Pending" | "Closed";
+  direction?: "up" | "down";
   onViewDetails?: () => void;
   onApprove?: () => void;
   onReject?: () => void;
@@ -27,6 +28,7 @@ function DotsIcon() {
 
 export default function PtwActionMenu({
   status,
+  direction = "down",
   onViewDetails,
   onApprove,
   onReject,
@@ -59,7 +61,11 @@ export default function PtwActionMenu({
       </button>
 
       {open ? (
-        <div className="absolute right-0 top-10 z-50 w-[180px] overflow-hidden rounded-2xl border border-[#EAECF0] bg-white shadow-[0_20px_60px_rgba(0,0,0,0.20)]">
+        <div
+          className={`absolute right-0 z-50 w-[180px] overflow-hidden rounded-2xl border border-[#EAECF0] bg-white shadow-[0_20px_60px_rgba(0,0,0,0.20)] ${
+            direction === "up" ? "bottom-10" : "top-10"
+          }`}
+        >
           <button
             type="button"
             onClick={() => {

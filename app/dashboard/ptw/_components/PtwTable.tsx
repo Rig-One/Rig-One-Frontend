@@ -33,7 +33,7 @@ function riskClasses(risk: PtwRow["aiRisk"]) {
 
 export default function PtwTable({ rows, onApprove, onReject }: PtwTableProps) {
   return (
-    <div className="overflow-hidden rounded-lg border border-[#EAECF0]">
+    <div className="overflow-visible rounded-lg border border-[#EAECF0]">
       <table className="w-full text-left">
         <thead className="bg-[#F2F4F7] text-[12px] font-medium text-[#667085]">
           <tr>
@@ -49,7 +49,7 @@ export default function PtwTable({ rows, onApprove, onReject }: PtwTableProps) {
           </tr>
         </thead>
         <tbody className="bg-white text-[13px] text-[#475467]">
-          {rows.map((row) => (
+          {rows.map((row, index) => (
             <tr key={row.id} className="border-t border-[#EAECF0]">
               <td className="px-4 py-5 text-[#667085]">{row.id}</td>
               <td className="px-4 py-5 font-medium text-[#101828]">{row.jobType}</td>
@@ -86,6 +86,7 @@ export default function PtwTable({ rows, onApprove, onReject }: PtwTableProps) {
                 <div className="inline-flex justify-center">
                   <PtwActionMenu
                     status={row.status}
+                    direction={index >= rows.length - 2 ? "up" : "down"}
                     onApprove={() => onApprove(row.id)}
                     onReject={() => onReject(row.id)}
                   />
