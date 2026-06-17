@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import ActiveWorkersTable from "./ActiveWorkersTable";
 import ShiftLogExportModal from "./ShiftLogExportModal";
 import ShiftLogsTable from "./ShiftLogsTable";
+import StartShiftModal from "./StartShiftModal";
 
 const tabs = ["Active Workers", "Shift Logs"] as const;
 type ShiftLogTab = (typeof tabs)[number];
@@ -115,12 +116,59 @@ function DownloadIcon() {
   );
 }
 
+function ToastCloseIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="h-4 w-4"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path d="M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export default function ShiftLogDashboard() {
   const [activeTab, setActiveTab] = useState<ShiftLogTab>("Active Workers");
   const [isExportOpen, setIsExportOpen] = useState(false);
+  const [isStartShiftOpen, setIsStartShiftOpen] = useState(false);
+  const [startShiftToast, setStartShiftToast] = useState<{
+    workerName: string;
+    location: string;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!startShiftToast) return;
+    const timeout = window.setTimeout(() => setStartShiftToast(null), 3500);
+    return () => window.clearTimeout(timeout);
+  }, [startShiftToast]);
 
   return (
     <section>
+      {startShiftToast ? (
+        <div className="fixed right-6 top-6 z-[60] w-[320px] overflow-hidden rounded-lg bg-white shadow-[0_18px_55px_rgba(0,0,0,0.22)]">
+          <div className="flex items-start gap-3 border-l-4 border-[#F97316] px-4 py-3">
+            <div className="flex-1">
+              <p className="text-[12px] font-semibold text-[#101828]">Shift Started</p>
+              <p className="mt-1 text-[12px] text-[#667085]">
+                {startShiftToast.workerName} • {startShiftToast.location}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setStartShiftToast(null)}
+              className="text-[#98A2B3]"
+              aria-label="Close shift started toast"
+            >
+              <ToastCloseIcon />
+            </button>
+          </div>
+        </div>
+      ) : null}
+
       <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
         <div>
           <h1 className="text-[28px] font-semibold tracking-[-0.03em] text-[#053361]">
@@ -132,6 +180,7 @@ export default function ShiftLogDashboard() {
         <div className="flex flex-wrap items-center gap-4">
           <button
             type="button"
+            onClick={() => setIsStartShiftOpen(true)}
             className="inline-flex h-12 items-center gap-2 rounded-lg bg-[#16B364] px-5 text-[14px] font-semibold text-white"
           >
             <PlayIcon />
@@ -221,6 +270,13 @@ export default function ShiftLogDashboard() {
       <ShiftLogExportModal
         open={isExportOpen}
         onClose={() => setIsExportOpen(false)}
+      />
+      <StartShiftModal
+        open={isStartShiftOpen}
+        onClose={() => setIsStartShiftOpen(false)}
+        onSubmit={(values) => {
+          setStartShiftToast(values);
+        }}
       />
     </section>
   );
